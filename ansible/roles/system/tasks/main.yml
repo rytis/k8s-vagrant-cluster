@@ -1,0 +1,38 @@
+- name: set hostname
+  ansible.builtin.hostname:
+    name: "{{ _v_hostname }}"
+
+- name: disable zram swap
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+    masked: true
+    force: true
+  loop:
+    - systemd-zram-setup@zram0.service
+    - dev-zram0.swap
+
+- name: disable swap
+  ansible.builtin.shell: swapoff -a -v
+
+- name: remove swap from fstab
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap.*)$'
+    replace: '# \1'
+  notify: systemd reload
+
+- name: deploy modules config
+  ansible.builtin.template:
+    src: modules_k8s.conf.j2
+    dest: /etc/modules-load.d/k8s.conf
+  notify:
+    - reload modules
+
+- name: deploy sysctl config
+  ansible.builtin.template:
+    src: sysctl_k8s.conf.j2
+    dest: /etc/sysctl.d/k8s.conf
+  notify:
+    - reload sysctl

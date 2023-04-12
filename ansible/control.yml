@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: yes
+  roles:
+    - system
+    - containerd
+  tasks:
+    - name: debug
+      debug:
+        var: hostvars[inventory_hostname].ansible_default_ipv4.address

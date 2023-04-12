@@ -1,0 +1,12 @@
+- name: reload modules
+  ansible.builtin.systemd:
+    name: systemd-modules-load.service
+    state: restarted
+
+- name: reload sysctl
+  ansible.builtin.shell: |
+    sysctl --system
+
+- name: systemd reload
+  ansible.builtin.systemd:
+    daemon_reload: true
