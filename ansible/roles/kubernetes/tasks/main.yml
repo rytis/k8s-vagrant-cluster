@@ -1,0 +1,23 @@
+- name: create YUM repo configuration
+  ansible.builtin.yum_repository:
+    name: kubernetes
+    description: Kubernetes repository
+    baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-$basearch
+    gpgkey: https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+    exclude: kubelet kubeadm kubectl
+
+- name: install k8s packages
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: present
+    disable_excludes: kubernetes
+  loop:
+    - kubelet
+    - kubectl
+    - kubeadm
+
+- name: enable kubelet service
+  ansible.builtin.systemd:
+    name: kubelet
+    state: started
+    enabled: yes

@@ -4,6 +4,7 @@
   roles:
     - system
     - containerd
+    - kubernetes
   tasks:
     - name: debug
       debug:
