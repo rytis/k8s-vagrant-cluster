@@ -40,3 +40,17 @@
 - name: disable SELinux
   ansible.posix.selinux:
     state: disabled
+
+- name: install packages
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - python3-pip
+
+- name: install Kubernetes python packages (needed by Ansible)
+  ansible.builtin.pip:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - kubernetes

@@ -21,3 +21,14 @@
     name: kubelet
     state: started
     enabled: yes
+
+- name: pull in Calico plugin
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/calico.yaml
+    dest: ~/calico.yaml
+
+- name: install Calico CNI
+  kubernetes.core.k8s:
+    kubeconfig: /etc/kubernetes/admin.conf
+    state: present
+    src: ~/calico.yaml
