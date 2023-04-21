@@ -15,6 +15,7 @@
   ansible.builtin.systemd:
     name: containerd
     enabled: yes
+    state: started
 
 - name: deploy containerd config
   ansible.builtin.template:

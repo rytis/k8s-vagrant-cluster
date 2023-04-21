@@ -8,4 +8,4 @@
   tasks:
     - name: debug
       debug:
-        var: hostvars[inventory_hostname].ansible_default_ipv4.address
+        var: hostvars[inventory_hostname].ansible_eth1.ipv4.address
