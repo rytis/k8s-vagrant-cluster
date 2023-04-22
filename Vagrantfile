@@ -7,32 +7,50 @@ WORKER_HOSTS = 2
 
 Vagrant.configure("2") do |config|
 
+  cp_hosts = []
+  wrk_hosts = []
+
   (1..CONTROL_PLANE_HOSTS).each do |i|
-    config.vm.define "k8s-c#{i}" do |subconf|
-      subconf.vm.synced_folder ".", "/vagrant"
-      subconf.vm.network "public_network", bridge: "en0: Ethernet"
-      subconf.vm.box = "generic/fedora37"
+    cp_hosts.push("k8s-c#{i}")
+  end
+
+  (1..WORKER_HOSTS).each do |i|
+    wrk_hosts.push("k8s-w#{i}")
+  end
+
+  config.vm.synced_folder ".", "/vagrant"
+  config.vm.network "public_network", bridge: "en0: Ethernet"
+  config.vm.box = "generic/fedora37"
+
+  (1..(CONTROL_PLANE_HOSTS+WORKER_HOSTS)).each do |i|
+
+    if i <= CONTROL_PLANE_HOSTS
+      hostname = "k8s-c#{i}"
+      mem = "2048"
+    else
+      hostname = "k8s-w#{i-CONTROL_PLANE_HOSTS}"
+      mem = "4096"
+    end
+
+    config.vm.define hostname do |subconf|
+
       subconf.vm.provider "virtualbox" do |vb|
-        vb.memory = "2048"
+        vb.memory = mem
       end
-      subconf.vm.provision :ansible do |ansible|
-        # ansible.verbose = "vvv"
-        ansible.playbook = "ansible/control.yml"
-        ansible.extra_vars = {
-          _v_hostname: "k8s-c#{i}"
-        }
+
+      if i == (CONTROL_PLANE_HOSTS+WORKER_HOSTS)
+        subconf.vm.provision :ansible do |ansible|
+          ansible.limit = "all"
+          ansible.playbook = "ansible/playbook.yml"
+          ansible.groups = {
+            "control" => cp_hosts,
+            "worker" => wrk_hosts
+          }
+          ansible.extra_vars = {
+            _v_control_primary: "k8s-c1"
+          }
+        end
       end
     end
   end
-
-  # (1..WORKER_HOSTS).each do |i|
-  #   config.vm.define "k8s-w#{i}" do |subconf|
-  #     subconf.vm.network "public_network", bridge: "en0: Ethernet"
-  #     subconf.vm.box = "generic/fedora37"
-  #     subconf.vm.provider "virtualbox" do |vb|
-  #       vb.memory = "4096"
-  #     end
-  #   end
-  # end
-
 end

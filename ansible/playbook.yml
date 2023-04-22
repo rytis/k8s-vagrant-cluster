@@ -1,0 +1,21 @@
+---
+- hosts: all
+  become: yes
+  roles:
+    - system
+    - containerd
+    - kubernetes
+  tasks:
+    - name: create k8s cluster
+      ansible.builtin.include_role:
+        name: control
+      when: _v_control_primary == inventory_hostname
+    - name: debug
+      debug:
+        var: hostvars[inventory_hostname].ansible_eth1.ipv4.address
+    - name: debug
+      debug:
+        var: groups
+    - name: debug
+      debug:
+        var: inventory_hostname

@@ -21,22 +21,3 @@
     name: kubelet
     state: started
     enabled: yes
-
-- name: pull in Calico plugin
-  ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/calico.yaml
-    dest: ~/calico.yaml
-
-- name: execute all handlers (to pick up sysctl and start services)
-  meta: flush_handlers
-
-- name: create cluster
-  ansible.builtin.shell:
-    cmd: "kubeadm init --apiserver-advertise-address {{ hostvars[inventory_hostname].ansible_eth1.ipv4.address }}"
-    creates: /etc/kubernetes/admin.conf
-
-- name: install Calico CNI
-  kubernetes.core.k8s:
-    kubeconfig: /etc/kubernetes/admin.conf
-    state: present
-    src: ~/calico.yaml

@@ -1,6 +1,6 @@
 - name: set hostname
   ansible.builtin.hostname:
-    name: "{{ _v_hostname }}"
+    name: "{{ inventory_hostname }}"
 
 - name: disable zram swap
   ansible.builtin.systemd:
