@@ -32,6 +32,10 @@ Vagrant.configure("2") do |config|
       mem = "4096"
     end
 
+    config.vm.provision "shell",
+      run: "always",
+      inline: "ip route del default via 10.0.2.2 || true"
+
     config.vm.define hostname do |subconf|
 
       subconf.vm.provider "virtualbox" do |vb|

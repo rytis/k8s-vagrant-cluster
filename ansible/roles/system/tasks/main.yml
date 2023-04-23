@@ -23,6 +23,12 @@
     replace: '# \1'
   notify: systemd reload
 
+- name: disable firewall
+  ansible.builtin.systemd:
+    name: firewalld
+    state: stopped
+    enabled: false
+
 - name: deploy modules config
   ansible.builtin.template:
     src: modules_k8s.conf.j2
