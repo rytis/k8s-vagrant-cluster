@@ -31,3 +31,4 @@
     - name: join the cluster
       shell:
         cmd: "{{ hostvars['_var_holder_host']['_join_cmd'] }}"
+        creates: /etc/kubernetes/pki/ca.crt

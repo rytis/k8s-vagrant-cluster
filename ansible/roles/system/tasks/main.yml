@@ -2,6 +2,11 @@
   ansible.builtin.hostname:
     name: "{{ inventory_hostname }}"
 
+- name: deploy /etc/hosts
+  ansible.builtin.template:
+    src: hosts.j2
+    dest: /etc/hosts
+
 - name: disable zram swap
   ansible.builtin.systemd:
     name: "{{ item }}"
