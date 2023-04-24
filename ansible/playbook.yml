@@ -10,12 +10,24 @@
       ansible.builtin.include_role:
         name: control
       when: _v_control_primary == inventory_hostname
-    - name: debug
-      debug:
-        var: hostvars[inventory_hostname].ansible_eth1.ipv4.address
-    - name: debug
-      debug:
-        var: groups
-    - name: debug
-      debug:
-        var: inventory_hostname
+
+- hosts: control
+  become: yes
+  tasks:
+    - block:
+        - name: generate cluster join command
+          shell:
+            cmd: kubeadm token create --print-join-command
+          register: _a_kubeadm_join_cmd
+        - name: add join command to dummy host
+          add_host:
+            name: "_var_holder_host"
+            _join_cmd: "{{ _a_kubeadm_join_cmd.stdout }}"
+      run_once: yes
+
+- hosts: worker
+  become: yes
+  tasks:
+    - name: join the cluster
+      shell:
+        cmd: "{{ hostvars['_var_holder_host']['_join_cmd'] }}"
